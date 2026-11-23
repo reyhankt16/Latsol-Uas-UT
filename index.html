@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Latsol UAS: latihan hafalan 7 matkul</title>
+<meta name="description" content="Latihan soal pilihan ganda dan kartu hafalan untuk 7 mata kuliah UT, 560 soal dari file latsol.">
+<meta name="theme-color" content="#F4EEE2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Figtree:wght@400;600;800&display=swap">
+<link rel="stylesheet" href="style.css">
+<script>
+  // set theme before paint so there is no flash
+  try { var t = localStorage.getItem('latsol-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Langsung ke isi</a>
+<header class="top">
+  <h1 class="mark"><button type="button" class="home-link" id="homeBtn" aria-label="Latsol UAS, kembali ke daftar mata kuliah">Latsol<span>UAS</span></button></h1>
+  <button type="button" class="ghost" id="themeBtn">Mode gelap</button>
+</header>
+
+<main id="main">
+  <p class="status" id="loading">Memuat 560 soal...</p>
+  <p class="status error" id="loadError" hidden>Data soal gagal dimuat. Pastikan file <code>questions.js</code> ada di folder yang sama, lalu muat ulang halaman.</p>
+  <p class="note" id="storageNote" hidden>Browser ini tidak mengizinkan penyimpanan, jadi progres hilang saat halaman ditutup.</p>
+
+  <!-- Daftar mata kuliah -->
+  <section id="viewHome" hidden aria-labelledby="homeTitle">
+    <h2 id="homeTitle" class="lead">Pilih mata kuliah, lalu latih sampai hafal.</h2>
+    <p class="sub">Soal yang salah akan muncul lagi sampai kamu jawab benar. Progres tersimpan di browser HP ini.</p>
+    <ul class="subjects" id="subjectList"></ul>
+  </section>
+
+  <!-- Pengaturan sesi -->
+  <section id="viewSetup" hidden aria-labelledby="setupTitle">
+    <button type="button" class="back" data-go="home">Kembali</button>
+    <h2 id="setupTitle" class="setup-title"></h2>
+    <p class="sub" id="setupStats"></p>
+    <form id="setupForm">
+      <fieldset>
+        <legend>Cara latihan</legend>
+        <label class="choice"><input type="radio" name="mode" value="quiz" checked><span><b>Kuis</b>Pilih jawaban A sampai D, langsung dinilai.</span></label>
+        <label class="choice"><input type="radio" name="mode" value="card"><span><b>Kartu hafalan</b>Baca soal, buka kunci, lalu tandai sudah hafal atau belum.</span></label>
+      </fieldset>
+      <fieldset>
+        <legend>Soal yang dipakai</legend>
+        <label class="choice"><input type="radio" name="pool" value="all" checked><span><b>Semua soal</b><i data-count="all"></i></span></label>
+        <label class="choice"><input type="radio" name="pool" value="todo"><span><b>Belum dikuasai</b><i data-count="todo"></i></span></label>
+        <label class="choice"><input type="radio" name="pool" value="wrong"><span><b>Perlu diulang</b><i data-count="wrong"></i></span></label>
+      </fieldset>
+      <div class="row">
+        <fieldset>
+          <legend>Jumlah</legend>
+          <div class="seg">
+            <label><input type="radio" name="count" value="10"><span>10</span></label>
+            <label><input type="radio" name="count" value="20" checked><span>20</span></label>
+            <label><input type="radio" name="count" value="40"><span>40</span></label>
+            <label><input type="radio" name="count" value="999"><span>Semua</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Urutan</legend>
+          <div class="seg">
+            <label><input type="radio" name="order" value="shuffle" checked><span>Acak</span></label>
+            <label><input type="radio" name="order" value="seq"><span>Nomor PDF</span></label>
+          </div>
+        </fieldset>
+      </div>
+      <p class="hint">Nomor PDF = urutan dari soal yang paling berpotensi keluar.</p>
+      <p class="status" id="poolEmpty" hidden></p>
+      <button type="submit" class="primary" id="startBtn">Mulai</button>
+    </form>
+    <button type="button" class="ghost danger" id="resetBtn">Hapus progres mata kuliah ini</button>
+  </section>
+
+  <!-- Sesi latihan -->
+  <section id="viewPlay" hidden aria-labelledby="qNum">
+    <div class="playbar">
+      <button type="button" class="back" data-go="setup">Berhenti</button>
+      <p class="counter"><span id="qCounter"></span><span id="streak"></span></p>
+    </div>
+    <div class="bar" role="progressbar" aria-label="Progres sesi" aria-valuemin="0" id="progress"><i></i></div>
+    <article class="card" id="card">
+      <h2 class="qnum" id="qNum"></h2>
+      <div class="stem" id="stem"></div>
+      <ol class="opts" id="opts"></ol>
+      <div class="verdict" id="verdict" aria-live="polite"></div>
+      <div class="explain" id="explain" hidden></div>
+    </article>
+    <div class="actions" id="actions"></div>
+    <p class="hint keys">Keyboard: tombol 1 sampai 4 atau A sampai D untuk menjawab, Enter untuk lanjut.</p>
+  </section>
+
+  <!-- Hasil -->
+  <section id="viewDone" hidden aria-labelledby="doneTitle">
+    <p class="score" id="score"></p>
+    <h2 id="doneTitle" class="lead"></h2>
+    <p class="sub" id="doneSub"></p>
+    <div class="actions">
+      <button type="button" class="primary" id="againBtn"></button>
+      <button type="button" class="ghost" data-go="setup">Atur sesi baru</button>
+    </div>
+    <h3 class="missed-title" id="missedTitle" hidden>Soal yang sempat salah</h3>
+    <ol class="missed" id="missed"></ol>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>Isi soal diambil dari 7 file latsol (PDF) milikmu. Ini latihan mandiri, bukan soal resmi UAS Universitas Terbuka.</p>
+</footer>
+
+<script src="questions.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>
