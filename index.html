@@ -9,7 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Figtree:wght@400;600;800&display=swap">
-<link rel="stylesheet" href="style.css">
+<!-- ?v= forces phones to drop cached files: bump it on every update -->
+<link rel="stylesheet" href="style.css?v=2">
 <script>
   // set theme before paint so there is no flash
   try { var t = localStorage.getItem('latsol-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
@@ -112,7 +113,7 @@
   <p>Isi soal diambil dari 7 file latsol (PDF) milikmu. Ini latihan mandiri, bukan soal resmi UAS Universitas Terbuka.</p>
 </footer>
 
-<script src="questions.js" defer></script>
-<script src="app.js" defer></script>
+<script src="questions.js?v=2" defer></script>
+<script src="app.js?v=2" defer></script>
 </body>
 </html>
