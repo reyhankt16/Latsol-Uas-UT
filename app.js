@@ -80,7 +80,13 @@
       b.onclick = () => { subject = s; show('setup'); };
       const li = el('li'); li.append(b); list.append(li);
     }
+    // only offer the reset when there is something to reset
+    $('resetAllBtn').hidden = !DATA.some((s) => Object.keys(prog(s.id)).length);
   }
+  $('resetAllBtn').onclick = () => {
+    if (!confirm('Hapus progres semua mata kuliah di perangkat ini? Semua tanda dikuasai dan perlu diulang akan kembali kosong.')) return;
+    progress = {}; save(); renderHome();
+  };
 
   /* ---------- setup ---------- */
   const form = $('setupForm');

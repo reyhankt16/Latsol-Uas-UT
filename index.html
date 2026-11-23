@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Figtree:wght@400;600;800&display=swap">
 <!-- ?v= forces phones to drop cached files: bump it on every update -->
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=3">
 <script>
   // set theme before paint so there is no flash
   try { var t = localStorage.getItem('latsol-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
@@ -33,6 +33,7 @@
     <h2 id="homeTitle" class="lead">Pilih mata kuliah, lalu latih sampai hafal.</h2>
     <p class="sub">Soal yang salah akan muncul lagi sampai kamu jawab benar. Progres tersimpan di browser HP ini.</p>
     <ul class="subjects" id="subjectList"></ul>
+    <button type="button" class="ghost danger" id="resetAllBtn" hidden>Reset semua progres di perangkat ini</button>
   </section>
 
   <!-- Pengaturan sesi -->
@@ -113,7 +114,7 @@
   <p>Isi soal diambil dari 7 file latsol (PDF) milikmu. Ini latihan mandiri, bukan soal resmi UAS Universitas Terbuka.</p>
 </footer>
 
-<script src="questions.js?v=2" defer></script>
-<script src="app.js?v=2" defer></script>
+<script src="questions.js?v=3" defer></script>
+<script src="app.js?v=3" defer></script>
 </body>
 </html>
