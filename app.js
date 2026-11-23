@@ -141,7 +141,7 @@
 
   function renderQuestion() {
     const s = session, idx = s.queue[s.pos], q = subject.questions[idx];
-    s.answered = false;
+    s.answered = false; s.picked = null;
     const retry = s.pos >= s.unique;
     $('qCounter').textContent = `${Math.min(s.pos + 1, s.queue.length)} / ${s.queue.length}` + (s.queue.length > s.unique ? ` (${s.queue.length - s.unique} ulangan)` : '');
     $('streak').textContent = s.streak >= 3 ? `${s.streak} benar beruntun` : '';
@@ -155,7 +155,7 @@
     q.o.forEach((o, i) => {
       const b = el('button', 'opt'); b.type = 'button';
       b.append(el('span', 'l', LETTERS[i]), el('span', '', o));
-      if (s.mode === 'quiz') b.onclick = () => answer(i); else b.disabled = true;
+      if (s.mode === 'quiz') { b.onclick = () => pick(i); b.setAttribute('aria-pressed', 'false'); } else b.disabled = true;
       const li = el('li'); li.append(b); opts.append(li);
     });
     const v = $('verdict'); v.textContent = ''; v.className = 'verdict';
@@ -176,7 +176,7 @@
     const s = session, q = subject.questions[s.queue[s.pos]];
     s.answered = true;
     [...$('opts').querySelectorAll('.opt')].forEach((b, i) => {
-      b.disabled = true;
+      b.disabled = true; b.classList.remove('picked'); b.removeAttribute('aria-pressed');
       if (i === q.a) { b.classList.add('right'); b.append(el('span', 'tag', 'Kunci jawaban')); }
       else if (i === picked) { b.classList.add('wrong'); b.append(el('span', 'tag', 'Jawabanmu')); }
     });
@@ -189,9 +189,24 @@
     if (correct) s.streak++; else { s.streak = 0; s.queue.push(idx); }
   }
 
-  function answer(i) {
+  // first tap only selects; grading waits for the confirm button so a mis-tap can be changed
+  function pick(i) {
     const s = session; if (s.answered) return;
-    const q = subject.questions[s.queue[s.pos]], ok = i === q.a;
+    s.picked = i;
+    $('opts').querySelectorAll('.opt').forEach((b, j) => { b.classList.toggle('picked', j === i); b.setAttribute('aria-pressed', j === i); });
+    let ok = $('actions').querySelector('.primary');
+    if (!ok) {
+      ok = el('button', 'primary'); ok.type = 'button';
+      ok.onclick = () => answer(session.picked);
+      $('actions').replaceChildren(ok);
+      ok.scrollIntoView({ block: 'nearest' });
+    }
+    ok.textContent = `Yakin, jawab ${LETTERS[i]}`;
+  }
+
+  function answer(i) {
+    const s = session; if (s.answered || i == null) return;
+    const q =subject.questions[s.queue[s.pos]], ok = i === q.a;
     record(ok);
     showAnswer(i);
     const v = $('verdict');
@@ -255,8 +270,8 @@
     if (current !== 'play' || e.ctrlKey || e.metaKey || e.altKey) return;
     const k = e.key.toLowerCase();
     const i = '1234'.indexOf(k) >= 0 ? '1234'.indexOf(k) : 'abcd'.indexOf(k);
-    if (session.mode === 'quiz' && !session.answered && k.length === 1 && i >= 0) { e.preventDefault(); answer(i); }
-    else if (k === 'enter' && session.answered && !e.target.closest('button')) { e.preventDefault(); $('actions').querySelector('.primary').click(); }
+    if (session.mode === 'quiz' && !session.answered && k.length === 1 && i >= 0) { e.preventDefault(); pick(i); }
+    else if (k === 'enter' && (session.answered || session.picked != null) && !(e.target.closest && e.target.closest('button'))) { e.preventDefault(); $('actions').querySelector('.primary').click(); }
   });
 
   history.replaceState({ v: 'home' }, '');
